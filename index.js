@@ -67,14 +67,33 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+const mongoose = require ('mongoose');
 
 const { router } = require('./routes/api');
 
 app.use(bodyParser.json());
 app.use(router);
 
-const PORT = 3333;
+const PORT = process.env.PORT || 3333;
 
-app.listen(PORT, () => {
-    console.log(`Приложение запущено на ${PORT} порту`);
-});
+
+const db_url = 'mongodb+srv://elgispresley:elgisujyibr@cluster0.rbabf.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
+
+async function start() {
+    try {
+       await mongoose.connect(db_url, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useFindAndModify: false,
+        useCreateIndex: true,
+       });
+       app.listen(PORT, () => {
+        console.log(`Приложение запущено на ${PORT} порту`);
+    });
+    
+    } catch (e) {
+        console.log('Ошибка запуска приложения ', e.message);
+        process.exit(1);
+    }
+}  
+start();

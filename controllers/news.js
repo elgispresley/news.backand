@@ -1,17 +1,10 @@
-const { DATABASE_NEWS } = require('../database/db')
+const { News } = require('../models/news')
 
 
 exports.getNews = async (request, response) => {
     try {
-        const lang = request.headers.language;
-
-        const filteredNews = DATABASE_NEWS.filter((n) => {
-            return n.lang === lang;
-        }); //[{ lang: ru, }]
-
-        console.log(lang);
-
-        response.status(200).json(filteredNews);
+        const allNews = await News.find();
+        response.status(200).json(allNews);
     } catch (e) {
         response.status(500).json(e.message);
     }
@@ -19,7 +12,11 @@ exports.getNews = async (request, response) => {
 
 exports.getOneNews = async (req, res) => {
     try {
-        const news = DATABASE_NEWS.find(news => news.id === req.params.newsId);
+        const news = await News.findByIdAndDelete(req.params.newsId);
+
+
+        
+      
         
         if (!news) {
             return res.status(404).json('Новость не найдена');
@@ -35,16 +32,36 @@ exports.getOneNews = async (req, res) => {
 
 exports.creatNews = async (req, res) => {
     try {
+       
+
         const news = req.body;
-        news.date = new Date();
 
-        DATABASE_NEWS.push(news);
+        console.log(news)
 
-        res.status(201).json({
+        const createdNews = await News.create({
+            title: news.title,
+            content: news.content
+        });
+        
+            res.status(201).json({
             message: 'Новость создана',
-            allNews: DATABASE_NEWS
+            news: createdNews
         });
     } catch (e) {
+       res.status(500).json({
+           message: e.message
+       });
+    }
+};
 
+exports.deleteNews = async (req, res) => {
+    try {
+       const news = await News.findByIdAndDelete(req.params.newsId);
+       if (!news) {
+           return res.status(404).json('Новость невозможно удалить, так как ее нет))')
+       } 
+    } catch (e) {
+        console.error(e.message);
+        res.status(500).json('Сервера усталЮ он прилег спать');
     }
 };
