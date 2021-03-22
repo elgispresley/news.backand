@@ -10,3 +10,4 @@ const newsSchema = new mongoose.Schema({
 });
 
 exports.News = mongoose.model('News', newsSchema);
+console.log('kuku')
